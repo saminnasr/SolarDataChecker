@@ -3,17 +3,26 @@ import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
 
-# --- Load creds from Streamlit Secrets ---
-creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"])
+# --- Define scopes ---
+SCOPES = [
+    "https://www.googleapis.com/auth/spreadsheets.readonly",
+    "https://www.googleapis.com/auth/drive.readonly",
+]
+
+# --- Load creds with scopes ---
+creds = Credentials.from_service_account_info(
+    st.secrets["gcp_service_account"],
+    scopes=SCOPES
+)
 client = gspread.authorize(creds)
 
-# --- Open Spreadsheet (اسم شیت اصلیت رو درست بذار) ---
-spreadsheet = client.open("Final Solar Data Checker")  
-worksheet = spreadsheet.worksheet("Sheet1")
+# --- Open Spreadsheet (اسم شیت رو درست بذار) ---
+spreadsheet = client.open("Final Solar Data Checker")     # 👈 اسم شیت اصلی
+worksheet = spreadsheet.worksheet("Sheet1")  # 👈 اسم تب داخل شیت
 data = worksheet.get_all_records()
 df = pd.DataFrame(data)
 
-st.title("Solar Site Data Checker")
+st.title("Solar Site Data Checker (Secure)")
 
 # --- Format values ---
 def format_value(val):
