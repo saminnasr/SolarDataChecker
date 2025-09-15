@@ -8,7 +8,12 @@ creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"])
 client = gspread.authorize(creds)
 # --- Google Sheets CSV link ---
 sheet_url = "https://docs.google.com/spreadsheets/d/194AEQq3ZZYBiGdBq0OieiAh_AFsVVXJRTGpMQps5fLM/export?format=csv&gid=0"
+spreadsheet = client.open("Solar_Sites")
+worksheet = spreadsheet.worksheet("Sheet1")
 
+# Get all records
+data = worksheet.get_all_records()
+df = pd.DataFrame(data)
 # Read all columns
 df = pd.read_csv(sheet_url)
 
