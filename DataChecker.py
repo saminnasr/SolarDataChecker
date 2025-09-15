@@ -3,25 +3,19 @@ import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
 
-# Load creds from Streamlit Secrets
+# --- Load creds from Streamlit Secrets ---
 creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"])
 client = gspread.authorize(creds)
-# --- Google Sheets CSV link ---
-sheet_url = "https://docs.google.com/spreadsheets/d/194AEQq3ZZYBiGdBq0OieiAh_AFsVVXJRTGpMQps5fLM/export?format=csv&gid=0"
-spreadsheet = client.open("Final Solar Data Checker")
-worksheet = spreadsheet.worksheet("Sheet1")
 
-# Get all records
+# --- Open Spreadsheet (اسم شیت اصلیت رو درست بذار) ---
+spreadsheet = client.open("Solar_Sites")   # 👈 اسم شیت اصلی
+worksheet = spreadsheet.worksheet("Sheet1")  # 👈 اسم تب (worksheet)
 data = worksheet.get_all_records()
 df = pd.DataFrame(data)
-# Read all columns
-df = pd.read_csv(sheet_url)
 
-st.title("Solar Site Data Checker")
+st.title("🌞 Solar Site Data Checker (Secure)")
 
-st.subheader("📋 Status of All Sites")
-
-# --- Format values for table ---
+# --- Format values ---
 def format_value(val):
     if pd.isna(val) or str(val).strip() == "":
         return "❌ Not Available"
@@ -29,41 +23,39 @@ def format_value(val):
     val = str(val).strip()
 
     if val.startswith("http") and "drive.google.com" in val:
-        file_id = val.split("/d/")[1].split("/")[0]
-        preview_url = f"https://drive.google.com/file/d/{file_id}/preview"
-
-        if val.endswith(".pdf") or "pdf" in val.lower():
-            return f'<iframe src="{preview_url}" width="300" height="200"></iframe>'
-        else:
+        try:
+            file_id = val.split("/d/")[1].split("/")[0]
+            preview_url = f"https://drive.google.com/file/d/{file_id}/preview"
+            if val.endswith(".pdf") or "pdf" in val.lower():
+                return f'<iframe src="{preview_url}" width="300" height="200"></iframe>'
+            else:
+                return f'<a href="{val}" target="_blank">🔗 Document</a>'
+        except Exception:
             return f'<a href="{val}" target="_blank">🔗 Document</a>'
-
     elif val.startswith("http"):
         return f'<a href="{val}" target="_blank">🔗 Document</a>'
-
     else:
         return f"✅ Available ({val})"
 
-# Format DataFrame
 formatted_df = df.copy()
-for col in formatted_df.columns[1:]:
+for col in formatted_df.columns[1:]:  # اولین ستون اسم سایته
     formatted_df[col] = formatted_df[col].apply(format_value)
 
+# --- Scrollable & Centered HTML Table ---
 html_table = formatted_df.to_html(escape=False, index=False)
-
 scrollable_table = f"""
-<div style="display: flex; justify-content: center; margin-top: 10px;">
-  <div style="width: 100%; max-width: 800px; height: 400px; overflow: auto; border: 1px solid #ddd; padding: 5px;">
+<div style="display: flex; justify-content: center; margin-top: 20px;">
+  <div style="width: 90%; max-width: 1200px; height: 600px; overflow: auto; border: 1px solid #ddd; padding: 10px;">
     <style>
       table {{
         border-collapse: collapse;
-        font-size: 12px;
+        font-size: 13px;
         white-space: nowrap;
       }}
       th {{
         text-align: center !important;
         vertical-align: middle !important;
-        background-color: #ffffff;
-        color: #000000;
+        background-color: #f2f2f2;
         padding: 8px 12px;
       }}
       td {{
@@ -77,8 +69,6 @@ scrollable_table = f"""
 </div>
 """
 st.markdown(scrollable_table, unsafe_allow_html=True)
-
-
 
 # --- Quick Query ---
 st.subheader("🔎 Quick Query")
