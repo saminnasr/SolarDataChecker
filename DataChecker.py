@@ -17,8 +17,8 @@ creds = Credentials.from_service_account_info(
 client = gspread.authorize(creds)
 
 # --- Open Spreadsheet (اسم شیت رو درست بذار) ---
-spreadsheet = client.open("Final Solar Data Checker")     # 👈 اسم شیت اصلی
-worksheet = spreadsheet.worksheet("Sheet1")  # 👈 اسم تب داخل شیت
+spreadsheet = client.open("Final Solar Data Checker")
+worksheet = spreadsheet.worksheet("Sheet1") 
 data = worksheet.get_all_records()
 df = pd.DataFrame(data)
 
@@ -47,7 +47,7 @@ def format_value(val):
         return f"✅ Available ({val})"
 
 formatted_df = df.copy()
-for col in formatted_df.columns[1:]:  # اولین ستون اسم سایته
+for col in formatted_df.columns[1:]:
     formatted_df[col] = formatted_df[col].apply(format_value)
 
 # --- Scrollable & Centered HTML Table ---
