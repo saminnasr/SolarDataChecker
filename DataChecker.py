@@ -22,9 +22,10 @@ worksheet = spreadsheet.worksheet("Sheet1")
 data = worksheet.get_all_records()
 df = pd.DataFrame(data)
 
-st.title("Solar Site Data Checker (Secure)")
+st.title("Solar Site Data Checker")
 
 # --- Format values ---
+st.subheader("📋 Status of All Sites")
 def format_value(val):
     if pd.isna(val) or str(val).strip() == "":
         return "❌ Not Available"
@@ -50,7 +51,7 @@ formatted_df = df.copy()
 for col in formatted_df.columns[1:]:
     formatted_df[col] = formatted_df[col].apply(format_value)
 
-# --- Scrollable & Centered HTML Table ---
+# --- HTML Table ---
 html_table = formatted_df.to_html(escape=False, index=False)
 scrollable_table = f"""
 <div style="display: flex; justify-content: center; margin-top: 20px;">
