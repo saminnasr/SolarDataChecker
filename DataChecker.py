@@ -16,7 +16,7 @@ creds = Credentials.from_service_account_info(
 )
 client = gspread.authorize(creds)
 
-# --- Open Spreadsheet (اسم شیت رو درست بذار) ---
+# --- Open Spreadsheet ---
 spreadsheet = client.open("Final Solar Data Checker")
 worksheet = spreadsheet.worksheet("Sheet1") 
 data = worksheet.get_all_records()
