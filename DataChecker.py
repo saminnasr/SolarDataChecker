@@ -55,7 +55,7 @@ for col in formatted_df.columns[1:]:
 html_table = formatted_df.to_html(escape=False, index=False)
 scrollable_table = f"""
 <div style="display: flex; justify-content: center; margin-top:10px;">
-  <div style="width: 100%; max-width: 1200px; height: 600px; overflow: auto; border: 1px solid #ddd; padding: 5px;">
+  <div style="width: 100%; max-width: 1000px; height: 600px; overflow: auto; border: 1px solid #ddd; padding: 5px;">
     <style>
       table {{
         border-collapse: collapse;
