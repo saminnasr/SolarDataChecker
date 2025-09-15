@@ -1,44 +1,81 @@
 import streamlit as st
 import pandas as pd
 
-# Google Sheets CSV link
+# --- Google Sheets CSV link ---
 sheet_url = "https://docs.google.com/spreadsheets/d/194AEQq3ZZYBiGdBq0OieiAh_AFsVVXJRTGpMQps5fLM/export?format=csv&gid=0"
 
-# Read all columns automatically
+# Read all columns
 df = pd.read_csv(sheet_url)
 
 st.title("Solar Site Data Checker")
 
-# # Show detected columns
-# st.write("Detected columns:", df.columns.tolist())
+st.subheader("📋 Status of All Sites")
 
-# Select site
-site_col = df.columns[0]
-site_choice = st.selectbox("Select a site:", df[site_col].unique())
-
-# Filter data for the selected site
-site_df = df[df[site_col] == site_choice]
-
-st.subheader("📋 Information for selected site")
-
-# Function to format values (✅/❌)
+# --- Format values for table ---
 def format_value(val):
     if pd.isna(val) or str(val).strip() == "":
         return "❌ Not Available"
+
+    val = str(val).strip()
+
+    if val.startswith("http") and "drive.google.com" in val:
+        file_id = val.split("/d/")[1].split("/")[0]
+        preview_url = f"https://drive.google.com/file/d/{file_id}/preview"
+
+        if val.endswith(".pdf") or "pdf" in val.lower():
+            return f'<iframe src="{preview_url}" width="300" height="200"></iframe>'
+        else:
+            return f'<a href="{val}" target="_blank">🔗 Document</a>'
+
+    elif val.startswith("http"):
+        return f'<a href="{val}" target="_blank">🔗 Document</a>'
+
     else:
         return f"✅ Available ({val})"
 
-# Create formatted copy
-formatted_df = site_df.copy()
-for col in df.columns[1:]:
+# Format DataFrame
+formatted_df = df.copy()
+for col in formatted_df.columns[1:]:
     formatted_df[col] = formatted_df[col].apply(format_value)
 
-st.dataframe(formatted_df)
+html_table = formatted_df.to_html(escape=False, index=False)
 
-# Quick query
+scrollable_table = f"""
+<div style="display: flex; justify-content: center; margin-top: 10px;">
+  <div style="width: 100%; max-width: 800px; height: 400px; overflow: auto; border: 1px solid #ddd; padding: 5px;">
+    <style>
+      table {{
+        border-collapse: collapse;
+        font-size: 12px;
+        white-space: nowrap;
+      }}
+      th {{
+        text-align: center !important;
+        vertical-align: middle !important;
+        background-color: #ffffff;
+        color: #000000;
+        padding: 8px 12px;
+      }}
+      td {{
+        text-align: center;
+        vertical-align: middle;
+        padding: 6px 10px;
+      }}
+    </style>
+    {html_table}
+  </div>
+</div>
+"""
+st.markdown(scrollable_table, unsafe_allow_html=True)
+
+
+
+# --- Quick Query ---
 st.subheader("🔎 Quick Query")
+site_col = df.columns[0]
+site_choice = st.selectbox("Choose a site for quick check:", df[site_col].unique())
 field = st.selectbox("Which data do you want to check?", df.columns[1:])
-result = site_df[field].iloc[0]
+result = df[df[site_col] == site_choice][field].iloc[0]
 
 if pd.isna(result) or str(result).strip() == "":
     st.error(f"❌ {field} for {site_choice} is NOT available.")
