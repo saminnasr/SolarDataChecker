@@ -59,7 +59,7 @@ scrollable_table = f"""
     <style>
       table {{
         border-collapse: collapse;
-        font-size: 12px;
+        font-size: 14px;
         white-space: nowrap;
       }}
       th {{
