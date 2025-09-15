@@ -1,6 +1,11 @@
 import streamlit as st
 import pandas as pd
+import gspread
+from google.oauth2.service_account import Credentials
 
+# Load creds from Streamlit Secrets
+creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"])
+client = gspread.authorize(creds)
 # --- Google Sheets CSV link ---
 sheet_url = "https://docs.google.com/spreadsheets/d/194AEQq3ZZYBiGdBq0OieiAh_AFsVVXJRTGpMQps5fLM/export?format=csv&gid=0"
 
