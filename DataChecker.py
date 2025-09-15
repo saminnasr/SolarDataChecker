@@ -8,12 +8,12 @@ creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"])
 client = gspread.authorize(creds)
 
 # --- Open Spreadsheet (اسم شیت اصلیت رو درست بذار) ---
-spreadsheet = client.open("Solar_Sites")   # 👈 اسم شیت اصلی
-worksheet = spreadsheet.worksheet("Sheet1")  # 👈 اسم تب (worksheet)
+spreadsheet = client.open("Final Solar Data Checker")  
+worksheet = spreadsheet.worksheet("Sheet1")
 data = worksheet.get_all_records()
 df = pd.DataFrame(data)
 
-st.title("🌞 Solar Site Data Checker (Secure)")
+st.title("Solar Site Data Checker")
 
 # --- Format values ---
 def format_value(val):
